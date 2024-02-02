@@ -1,0 +1,11 @@
+%oldchk=neutral.chk
+%chk=cation
+#p test hf/3-21g geom=check guess=read
+output(faf)
+
+Title Card Required
+
+1  2
+
+cation.faf
+

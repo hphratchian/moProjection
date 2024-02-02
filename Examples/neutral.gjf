@@ -1,0 +1,19 @@
+%chk=neutral.chk
+#p test uhf/3-21g geom=connectivity opt freq
+output(faf)
+
+Title Card Required
+
+0 1
+ C                  0.09043928    0.12919896    0.00000000
+ O                  1.31775628    0.12919896    0.00000000
+ H                 -0.50170572    1.06860296    0.00000000
+ H                 -0.50170572   -0.81020504    0.00003900
+
+ 1 2 2.0 3 1.0 4 1.0
+ 2
+ 3
+ 4
+
+neutral.faf
+

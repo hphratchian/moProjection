@@ -1,0 +1,5 @@
+%oldchk=nio
+%chk=aoBasedPAD
+#p test hf chkbas geom=allcheck guess(read,save,only) pop=(orbitals,threshorb=-1)
+
+
