@@ -1,0 +1,12 @@
+%chk=000-molecule
+#p test hf 6-31g pop=full geom=notest gfinput
+output(matrix,files=((563,integer)))
+
+test
+
+-1  1
+o       0.00     0.00   -0.50
+h       0.00     0.00    0.50
+
+000-molecule.faf
+

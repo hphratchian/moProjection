@@ -1,0 +1,12 @@
+%chk=000-symmMolecule
+#p test hf 6-311g* pop=full geom=notest gfinput
+output(matrix,files=((563,integer)))
+
+test
+
+0  1
+f       0.00     0.00   -0.50
+f       0.00     0.00    0.50
+
+000-symmMolecule.faf
+
