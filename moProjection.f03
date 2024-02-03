@@ -89,7 +89,7 @@
         call faf3%getArray('FILE 564 INTEGERS',mqcVarOut=mqcTmp1)
       else
         call faf1%getArray('FILE 563 INTEGERS',mqcVarOut=mqcTmp)
-        call faf3%getArray('FILE 564 INTEGERS',mqcVarOut=mqcTmp1)
+        call faf1%getArray('FILE 564 INTEGERS',mqcVarOut=mqcTmp1)
       endIf
       call mqcTmp%print(header='File 563 Integers')
       call mqcTmp1%print(header='File 564 Integers')

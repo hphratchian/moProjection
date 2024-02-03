@@ -1,8 +1,8 @@
 %oldchk=000-molecule
 %chk=000-moleculeProjected
-#p test hf gen pop=full geom=notest gfinput
+#p test uhf gen pop=full geom=notest gfinput
 guess=(read,only,save) iop(4/6=220)
-output(matrix,files=((563,integer)))
+output(matrix,files=((563,integer),(564,integer)))
 
 test
 

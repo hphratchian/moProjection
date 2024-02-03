@@ -1,6 +1,6 @@
 %chk=000-symmMolecule
-#p test hf 6-311g* pop=full geom=notest gfinput
-output(matrix,files=((563,integer)))
+#p test uhf 6-311g* pop=full geom=notest gfinput
+output(matrix,files=((563,integer),(564,integer)))
 
 test
 
