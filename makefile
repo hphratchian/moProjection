@@ -29,5 +29,5 @@ all: moProjection.exe
 # Generic rule for building general executable program (*.exe) from a standard
 # f03 source (*.f03) file.
 #
-%.exe: %.f03 $(MQCLIB)/libmqc.a
+%.exe: %.f03 %_mod.f03 $(MQCLIB)/libmqc.a
 	$(RunF) $(LIBS) $(Prof) -I$(MQCMODS) -o $*.exe $*.f03 $(MQCLIB)/libmqc.a
