@@ -37,8 +37,10 @@ INCLUDE 'moProjection_mod.f03'
       integer(kind=int64)::i,j,nCommands,nFafs,nMOSymms
       integer(kind=int64),dimension(:),allocatable::intVecTmp,irrepMOsAlpha,  &
         irrepMOsBeta
+      integer(kind=int64),dimension(3)::PAD_weights
       real(kind=real64),dimension(:),allocatable::moColumn,moIrrepPops
       character(len=512)::fafName1,fafName2,fafName3,pointGroup
+      character(len=32)::irrepName
       type(mqc_gaussian_unformatted_matrix_file)::faf1,faf2,faf3
       type(mqc_variable)::mqcTmp,mqcTmp1
       type(mqc_variable)::aoOverlap,moCoefficients1alpha,moCoefficients2alpha,  &
@@ -55,6 +57,7 @@ INCLUDE 'moProjection_mod.f03'
  2005 format(/,1x,'BETA  Column ',i5)
  2010 format(/,1x,'Pops over irreps')
  2020 format(1x,A7,2x,f14.6)
+ 2025 format(1x,A7,2x,f14.6,2x,'(',i2,' iso | ',i2,' perp | ',i2,' para)')
  8999 format(/,1x,'END OF MO PROJECTION PROGRAM.')
  9000 format(/,1x,'Expected at least 2 command line arguments, but found ',I2,'.')
  9100 format(/,1x,'Confused by the number of command line arguments.')
@@ -170,7 +173,8 @@ INCLUDE 'moProjection_mod.f03'
         case('C2V','C02V')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            write(iOut,2020) TRIM(pointGroupIrrepNameC2v(j)),moIrrepPops(j)
+            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
           endDo
         case default
           call mqc_print(moIrrepPops(1:),iOut=iOut,header='Pops over irreps')
