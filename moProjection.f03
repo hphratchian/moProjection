@@ -176,8 +176,14 @@ INCLUDE 'moProjection_mod.f03'
             call pointGroupIrrepNameC2v(j,irrepName,PAD_weights)
             write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
           endDo
+        case('D2H','D02H')
+          write(iOut,2010)
+          do j = 1,Size(moIrrepPops(1:))
+            call pointGroupIrrepNameD2H(j,irrepName,PAD_weights)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+          endDo
         case default
-          call mqc_print(moIrrepPops(1:),iOut=iOut,header='Pops over irreps')
+          call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
         if(ABS(moIrrepPops(0)).gt.1d-3) write(iOut,*) 'Unassigned Symmetry Population: ',moIrrepPops(0)
         write(*,*)
