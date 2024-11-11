@@ -205,7 +205,27 @@ INCLUDE 'moProjection_mod.f03'
         do j = 1,Size(mqcTmp1)
           moIrrepPops(irrepMOsBeta(j)) = moIrrepPops(irrepMOsBeta(j)) + float(mqcTmp1%getVal([j]))
         endDo
-        call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
+        select case(pointGroup)
+        case('D*H','DINFH')
+          write(iOut,2010)
+          do j = 1,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
+          endDo
+        case('C2V','C02V')
+          write(iOut,2010)
+          do j = 1,Size(moIrrepPops(1:))
+            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+          endDo
+        case('D2H','D02H')
+          write(iOut,2010)
+          do j = 1,Size(moIrrepPops(1:))
+            call pointGroupIrrepNameD2H(j,irrepName,PAD_weights)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+          endDo
+        case default
+          call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
+        end select
         write(*,*)
         write(*,*)
       endDo
