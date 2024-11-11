@@ -164,18 +164,37 @@
       return
       end function pointGroupIrrepNameDinfH
 
-      function PSPPAD(irrepVal,PAD_weights) result(PSP_PAD)
+      function Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,totirreps) result(PSP_PAD)
 !
 !     This function calculates the PSP PAD value. One takes all the moIrrepPops
-!     for the orbital in question, calls the corresponding point group function, 
+!     for the orbital in question, along with the total PAD weights stored in
+!     one array, and then multiples the each moirrep pop against the average of
+!     the pad_weights for that irrep, taking into account the number of
+!     parallel,perpendicular,or isosymmetric waves for each irrep that our
+!     possible.
 !
 
       implicit none
-      integer(kind=int64),intent(in)::irrepVal
-      character(len=32)::irrepName
-      integer(kind=int64),intent(in),dimension(3)::PAD_weights
+      integer(kind=int64),intent(in)::totirreps
+      real(kind=real64),intent(in),dimension(totirreps)::moIrrepPops
+      integer(kind=int64),intent(in),dimension(3*totirreps)::PAD_tot_weights
       real(kind=real64)::PSP_PAD
+      integer(kind=int64)::i,j,temp,count_temp
+    
+      do i = 0,totirreps-1
+        temp = 0
+        count_temp = 0
+        do j = 1,3 
+          if(j.eq.2) then
+            temp = temp + 2*PAD_tot_weights((i*3)+j)
+          end if
+          count_temp = count_temp + PAD_tot_weights((i*3)+j)
+        end do
+        write(10,*) i, count_temp
+        PSP_PAD = float(temp/count_temp)q
+      end do
+!     PSP_PAD = float(temp)
 
-      end function PSPPAD
+      end function Calc_PSP_PAD
 
       end module moProjection_mod
