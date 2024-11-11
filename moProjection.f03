@@ -176,9 +176,10 @@ INCLUDE 'moProjection_mod.f03'
         endDo
       case('D2H','D02H')
         write(iOut,2010)
-        do i = 0,Size(moIrrepPops(1:)-1)
+        do i = 0,Size(moIrrepPops)-1
           call pointGroupIrrepNameD2H(i,irrepName,PAD_weights)
           do j = 1,3
+            write(600,*) "PAD_weights", PAD_weights
             PAD_tot_weights((i*3)+j) = PAD_weights(j)
           end do
         end do
@@ -215,8 +216,7 @@ INCLUDE 'moProjection_mod.f03'
             call pointGroupIrrepNameD2H(j,irrepName,PAD_weights)
             write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
           endDo
-
-          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,Size(moIrrepPops(1:)))
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,Size(moIrrepPops))
         case default
           call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
@@ -258,6 +258,7 @@ INCLUDE 'moProjection_mod.f03'
             call pointGroupIrrepNameD2H(j,irrepName,PAD_weights)
             write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
           endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,Size(moIrrepPops))
         case default
           call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
