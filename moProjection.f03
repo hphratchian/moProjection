@@ -37,10 +37,7 @@ INCLUDE 'moProjection_mod.f03'
       integer(kind=int64)::i,j,nCommands,nFafs,nMOSymms
       integer(kind=int64),dimension(:),allocatable::intVecTmp,irrepMOsAlpha,  &
         irrepMOsBeta
-      integer(kind=int64),dimension(3)::PAD_weights
-!     Andrew allocatable array to store all PAD_weights for all irreps in one
-!     array
-      integer(kind=int64),dimension(:),allocatable::PAD_tot_weights
+      real(kind=real64),dimension(:),allocatable::PAD_weights
       real(kind=real64),dimension(:),allocatable::moColumn,moIrrepPops
       real(kind=real64)::PSP_PAD
       character(len=512)::fafName1,fafName2,fafName3,pointGroup
@@ -61,7 +58,7 @@ INCLUDE 'moProjection_mod.f03'
  2005 format(/,1x,'BETA  Column ',i5)
  2010 format(/,1x,'Pops over irreps')
  2020 format(1x,A7,2x,f14.6)
- 2025 format(1x,A7,2x,f14.6,2x,'(',i2,' iso | ',i2,' perp | ',i2,' para)')
+ 2025 format(1x,A7,2x,f14.6,2x)
  2050 format(1x,'PSP_PAD',1x,F14.7,1x)
  8999 format(/,1x,'END OF MO PROJECTION PROGRAM.')
  9000 format(/,1x,'Expected at least 2 command line arguments, but found ',I2,'.')
@@ -154,39 +151,18 @@ INCLUDE 'moProjection_mod.f03'
 !     Project the second structure's MOs into the basis of the first structure's
 !     MOs. Then evaluate each MO's percentage character by irrep.
 !
+
+!
+!     Obtaining preset PAD_weights here
+!
+      Allocate(PAD_weights((nMOSymms+1)))
+      call pointGroupPADweight(pointGroup,PAD_weights,nMOSymms)
+      write(*,*) "PAD_weights size",Size(PAD_weights)
 !     First, run the analysis over alpha MOs.
       mqcTmp = MatMul(Transpose(moCoefficients1alpha),MatMul(aoOverlap,moCoefficients2alpha))
       if(Allocated(moIrrepPops)) deAllocate(moIrrepPops)
       Allocate(moIrrepPops(0:nMOSymms))
-
-!
-!     Andrew running outside of main loop to get PAD_tot_weights
-!
-
-      Allocate(PAD_tot_weights(3*Size(moIrrepPops)))
-      select case(pointGroup)
-      case('D*H','DINFH')
-        write(iOut,2010)
-        do i = 1,Size(moIrrepPops(1:)-1)
-        endDo
-      case('C2V','C02V')
-        write(iOut,2010)
-        do i = 1,Size(moIrrepPops(1:)-1)
-          call pointGroupIrrepNameC2v(j,irrepName,PAD_weights)
-        endDo
-      case('D2H','D02H')
-        write(iOut,2010)
-        do i = 0,Size(moIrrepPops)-1
-          call pointGroupIrrepNameD2H(i,irrepName,PAD_weights)
-          do j = 1,3
-            write(600,*) "PAD_weights", PAD_weights
-            PAD_tot_weights((i*3)+j) = PAD_weights(j)
-          end do
-        end do
-      end select
-!
-!     Back to the Dean's code
-!
+      write(666,*) "Andrew check december... should be 9: ", Size(PAD_weights)
       do i = 1,Size(mqcTmp,2)
         mqcTmp1 = mqcTmp%column(i)
         write(*,*)' ALPHA Column ',i
@@ -207,16 +183,16 @@ INCLUDE 'moProjection_mod.f03'
         case('C2V','C02V')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights(i),nMOSymms)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights(j)
           endDo
         case('D2H','D02H')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameD2H(j,irrepName,PAD_weights)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+            call pointGroupIrrepNameD2H(j,irrepName,nMOSymms)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j)
           endDo
-          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,Size(moIrrepPops))
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case default
           call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
@@ -249,20 +225,19 @@ INCLUDE 'moProjection_mod.f03'
         case('C2V','C02V')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights(i),nMOSymms)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j)
           endDo
         case('D2H','D02H')
           write(iOut,2010)
-          do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameD2H(j,irrepName,PAD_weights)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+          do j = 1,Size(moIrrepPops(1:)+1)
+            call pointGroupIrrepNameD2H(j,irrepName,nMOSymms)
+            write(iOut,2025) TRIM(irrepName),moIrrepPops(j)
           endDo
-          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,Size(moIrrepPops))
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case default
           call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
-        write(*,*)
         write(*,*)
       endDo
 !
