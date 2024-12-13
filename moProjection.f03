@@ -162,7 +162,6 @@ INCLUDE 'moProjection_mod.f03'
       mqcTmp = MatMul(Transpose(moCoefficients1alpha),MatMul(aoOverlap,moCoefficients2alpha))
       if(Allocated(moIrrepPops)) deAllocate(moIrrepPops)
       Allocate(moIrrepPops(0:nMOSymms))
-      write(666,*) "Andrew check december... should be 9: ", Size(PAD_weights)
       do i = 1,Size(mqcTmp,2)
         mqcTmp1 = mqcTmp%column(i)
         write(*,*)' ALPHA Column ',i
@@ -183,9 +182,9 @@ INCLUDE 'moProjection_mod.f03'
         case('C2V','C02V')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights(i),nMOSymms)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights(j)
+            write(iOut,2020) TRIM(pointGroupIrrepNameC2v(j)),moIrrepPops(j)
           endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case('D2H','D02H')
           write(iOut,2010)
           do j = 0,Size(moIrrepPops(1:))
@@ -203,7 +202,7 @@ INCLUDE 'moProjection_mod.f03'
 !     Now, run the analysis over beta MOs.
       mqcTmp = MatMul(Transpose(moCoefficients1beta),MatMul(aoOverlap,moCoefficients2beta))
       if(Allocated(moIrrepPops)) deAllocate(moIrrepPops)
-      Allocate(moIrrepPops(nMOSymms))
+      Allocate(moIrrepPops(0:nMOSymms))
       do i = 1,Size(mqcTmp,2)
         mqcTmp1 = mqcTmp%column(i)
         write(*,*)' BETA  Column ',i
@@ -224,9 +223,9 @@ INCLUDE 'moProjection_mod.f03'
         case('C2V','C02V')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights(i),nMOSymms)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j)
+            write(iOut,2020) TRIM(pointGroupIrrepNameC2v(j)),moIrrepPops(j)
           endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case('D2H','D02H')
           write(iOut,2010)
           do j = 0,Size(moIrrepPops(1:))
@@ -236,8 +235,10 @@ INCLUDE 'moProjection_mod.f03'
         case default
           call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
+        if(ABS(moIrrepPops(0)).gt.1d-3) write(iOut,*) 'Unassigned Symmetry Population: ',moIrrepPops(0)
         write(*,*)
-      endDo
+        write(*,*)
+      end do
 !
   999 Continue
       call faf1%closeFile()
