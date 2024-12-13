@@ -127,61 +127,10 @@
 !
       return
       end subroutine pointGroupIrrepNameC2v
-
-!PROCEDURE pointGroupIrrepNameD2H(irrepVal)
-      subroutine pointGroupIrrepNameD2H(irrepVal,irrepName,nMOSymms)
-!
-!     This routine returns the character string for the irrep name
-!     corresponding to the irrep integer value according to Gaussian's internal
-!     definitions for the D2H point group in the dummy argument irrepName.
-!
-!     The optional argument PAD_weights will be filled with the numbers of
-!     isotropic, perpendicular, and parallel waves expected in a one-electron
-!     photo-detachment experiment where the molecule is rotating freely. The
-!     numbers of each type are based on using the three primary axis as discrete
-!     representations of the rotating system..
 !
 !
-      implicit none
-      integer(kind=int64),intent(in)::irrepVal,nMOSymms
-      character(len=32),intent(out)::irrepName
-!
-!     Andrew October 30th --- PAD Weights below are written as
-!     isotropic,perpendicular,and parallel in that order.
-!     Andrew November 30th --- PAD Weights below are written NOT
-!     isotropic,perpendicular,and parallel in that order.. BUT
-!     The total number of parallel waves in x,y,z or z direction.
-!     Averaging should be over all three directions NOT the number of total
-!     waves. The old way of doing it doesn't make any sense.
-      select case(irrepVal)
-      case(0)
-        irrepName = '?'
-      case(1)
-        irrepName = 'AG'
-      case(2)
-        irrepName = 'AU'
-      case(3)
-        irrepName = 'B1G'
-      case(4)
-        irrepName = 'B1U'
-      case(5)
-        irrepName = 'B2G'
-      case(6)
-        irrepName = 'B2U'
-      case(7)
-        irrepName = 'B3G'
-      case(8)
-        irrepName = 'B3U'
-      case default
-        call mqc_error('Unknown D2H Irrep Value.')
-      end select
-!
-      return
-      end subroutine pointGroupIrrepNameD2H
-!
-!
-!PROCEDURE pointGroupIrrepNameDinfH(irrepVal)
-      function pointGroupIrrepNameDinfH(irrepVal) result(irrepName)
+!PROCEDURE pointGroupIrrepNameD2h(irrepVal)
+      function pointGroupIrrepNameD2h(irrepVal) result(irrepName)
 !
 !     This function returns the character string for the irrep name
 !     corresponding to the irrep integer value according to Gaussian's internal
@@ -212,11 +161,11 @@
       case(8)
         irrepName = 'B3U'
       case default
-        call mqc_error('Unknown DinfH Irrep Value.')
+        call mqc_error('Unknown D2H Irrep Value.')
       end select
 !
       return
-      end function pointGroupIrrepNameDinfH
+      end function pointGroupIrrepNameD2h
 
       function Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,totirreps) result(PSP_PAD)
 !

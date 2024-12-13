@@ -178,7 +178,7 @@ INCLUDE 'moProjection_mod.f03'
         case('D*H','DINFH')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
+!           write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
           endDo
         case('C2V','C02V')
           write(iOut,2010)
@@ -188,9 +188,8 @@ INCLUDE 'moProjection_mod.f03'
           endDo
         case('D2H','D02H')
           write(iOut,2010)
-          do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameD2H(j,irrepName,nMOSymms)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameD2H(j)),moIrrepPops(j)
           endDo
           write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case default
@@ -220,7 +219,7 @@ INCLUDE 'moProjection_mod.f03'
         case('D*H','DINFH')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
+!           write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
           endDo
         case('C2V','C02V')
           write(iOut,2010)
@@ -230,9 +229,8 @@ INCLUDE 'moProjection_mod.f03'
           endDo
         case('D2H','D02H')
           write(iOut,2010)
-          do j = 1,Size(moIrrepPops(1:)+1)
-            call pointGroupIrrepNameD2H(j,irrepName,nMOSymms)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameD2H(j)),moIrrepPops(j)
           endDo
           write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case default
