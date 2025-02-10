@@ -132,6 +132,7 @@ INCLUDE 'moProjection_mod.f03'
 !
 !     Grab symmetry array from the first file.
 !
+      write(*,*) "Andrew here"
       if(nFafs.eq.3) then
         call faf3%getArray('FILE 563 INTEGERS',mqcVarOut=mqcTmp)
         call faf3%getArray('FILE 564 INTEGERS',mqcVarOut=mqcTmp1)
@@ -191,6 +192,16 @@ INCLUDE 'moProjection_mod.f03'
             write(iOut,2020) TRIM(pointGroupIrrepNameD2H(j)),moIrrepPops(j)
           endDo
           write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
+        case('CS','Cs')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
+          endDo
+        case('C2H','C2h')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
+          endDo
         case default
           call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
@@ -230,6 +241,12 @@ INCLUDE 'moProjection_mod.f03'
           write(iOut,2010)
           do j = 0,Size(moIrrepPops(1:))
             write(iOut,2020) TRIM(pointGroupIrrepNameD2H(j)),moIrrepPops(j)
+          endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
+        case('CS','Cs')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
           endDo
           write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case default

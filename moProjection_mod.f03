@@ -56,6 +56,12 @@
         PAD_weight = [0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0] 
       case('C2V')
         PAD_weight = [0.0,1.666,0.0,0.0,0.0]
+      case('CS')
+        !Depedent on angular momentum pop.... theory problem as Hrant.
+        PAD_weight = [0.0,2.0,0.0,0.0]
+      case('C2h')
+        !Depedent on angular momentum pop.... theory problem as Hrant.
+        PAD_weight = [0.0,2.0,0.0,0.0]
       case default
         call mqc_error('Unknown pointGroup.')
       end select
@@ -92,6 +98,32 @@
 !
       return
       end function pointGroupIrrepNameC2v
+
+!PROCEDURE pointGroupIrrepNameCs(irrepVal)
+      function pointGroupIrrepNameCs(irrepVal) result(irrepname)
+!
+!     This function returns the character string for the irrep name
+!     corresponding to the irrep integer value according to Gaussian's internal
+!     definitions for the Cs point group.
+!
+!
+      implicit none
+      integer(kind=int64),intent(in)::irrepVal
+      character(len=32)::irrepName
+!
+      select case(irrepVal)
+      case(0)
+        irrepName = '?'
+      case(1)
+        irrepName = 'A'''
+      case(2)
+        irrepName = 'A'''''
+      case default
+        call mqc_error('Unknown Cs Irrep Value.')
+      end select
+!
+      return
+      end function pointGroupIrrepNameCs
 !
 !
 !PROCEDURE pointGroupIrrepNameD2h(irrepVal)
@@ -131,6 +163,36 @@
 !
       return
       end function pointGroupIrrepNameD2h
+
+!PROCEDURE pointGroupIrrepNameC2H(irrepVal)
+      function pointGroupIrrepNameC2H(irrepVal) result(irrepname)
+!
+!     This function returns the character string for the irrep name
+!     corresponding to the irrep integer value according to Gaussian's internal
+!     definitions for the C2H point group.
+!
+!
+      implicit none
+      integer(kind=int64),intent(in)::irrepVal
+      character(len=32)::irrepName
+!
+      select case(irrepVal)
+      case(0)
+        irrepName = '?'
+      case(1)
+        irrepName = 'AG'
+      case(2)
+        irrepName = 'AU'
+      case(3)
+        irrepName = 'BG'
+      case(4)
+        irrepName = 'BU'
+      case default
+        call mqc_error('Unknown C2H Irrep Value.')
+      end select
+!
+      return
+      end function pointGroupIrrepNameC2H
 
       function Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,totirreps) result(PSP_PAD)
 !
