@@ -25,12 +25,12 @@
       CONTAINS
 !
 !
-!PROCEDURE pointGroupIrrepNameC2v(irrepVal)
-      subroutine pointGroupIrrepNameC2v(irrepVal,irrepName,PAD_weights)
+!PROCEDURE pointGroupPADweight(PAD_weights)
+      subroutine pointGroupPADweight(pointGroup,PAD_weight,nMOSymms)
 !
 !     This routine returns the character string for the irrep name
 !     corresponding to the irrep integer value according to Gaussian's internal
-!     definitions for the C2v point group in the dummy argument irrepName.
+!     definitions for the D2H point group in the dummy argument irrepName.
 !
 !     The optional argument PAD_weights will be filled with the numbers of
 !     isotropic, perpendicular, and parallel waves expected in a one-electron
@@ -40,40 +40,98 @@
 !
 !
       implicit none
+      integer(kind=int64),intent(in)::nMOSymms
+      character(len=512),intent(in)::pointGroup
+      real(kind=real64),dimension(nMOSymms+1)::PAD_weight
+!
+!     Andrew October 30th --- PAD Weights below are written as
+!     isotropic,perpendicular,and parallel in that order.
+!     Andrew November 30th --- PAD Weights below are written NOT
+!     isotropic,perpendicular,and parallel in that order.. BUT
+!     The total number of parallel waves in x,y,z or z direction.
+!     Averaging should be over all three directions NOT the number of total
+!     waves. The old way of doing it doesn't make any sense.
+      select case(pointGroup)
+      case('D2H')
+        PAD_weight = [0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0] 
+      case('C2V')
+        PAD_weight = [0.0,1.666,0.0,0.0,0.0]
+      case('CS')
+        !Depedent on angular momentum pop.... theory problem as Hrant.
+        PAD_weight = [0.0,2.0,0.0,0.0]
+      case('C2h')
+        !Depedent on angular momentum pop.... theory problem as Hrant.
+        PAD_weight = [0.0,2.0,0.0,0.0]
+      case default
+        call mqc_error('Unknown pointGroup.')
+      end select
+!
+      return
+      end subroutine pointGroupPADweight
+
+!PROCEDURE pointGroupIrrepNameC2v(irrepVal)
+      function pointGroupIrrepNameC2v(irrepVal) result(irrepname)
+!
+!     This function returns the character string for the irrep name
+!     corresponding to the irrep integer value according to Gaussian's internal
+!     definitions for the C2v point group.
+!
+!
+      implicit none
       integer(kind=int64),intent(in)::irrepVal
-      character(len=32),intent(out)::irrepName
-      integer(kind=int64),dimension(3),optional::PAD_weights
+      character(len=32)::irrepName
 !
       select case(irrepVal)
       case(0)
         irrepName = '?'
-        PAD_weights = [ 0,0,0 ]
       case(1)
         irrepName = 'A1'
-        PAD_weights = [ 1,0,3 ]
       case(2)
         irrepName = 'A2'
-        PAD_weights = [ 0,1,0 ]
       case(3)
         irrepName = 'B1'
-        PAD_weights = [ 1,2,0 ]
       case(4)
         irrepName = 'B2'
-        PAD_weights = [ 1,2,0 ]
       case default
         call mqc_error('Unknown C2v Irrep Value.')
       end select
 !
       return
-      end subroutine pointGroupIrrepNameC2v
-!
-!
-!PROCEDURE pointGroupIrrepNameDinfH(irrepVal)
-      function pointGroupIrrepNameDinfH(irrepVal) result(irrepName)
+      end function pointGroupIrrepNameC2v
+
+!PROCEDURE pointGroupIrrepNameCs(irrepVal)
+      function pointGroupIrrepNameCs(irrepVal) result(irrepname)
 !
 !     This function returns the character string for the irrep name
 !     corresponding to the irrep integer value according to Gaussian's internal
-!     definitions for the D_infinity_h point group.
+!     definitions for the Cs point group.
+!
+!
+      implicit none
+      integer(kind=int64),intent(in)::irrepVal
+      character(len=32)::irrepName
+!
+      select case(irrepVal)
+      case(0)
+        irrepName = '?'
+      case(1)
+        irrepName = 'A'''
+      case(2)
+        irrepName = 'A'''''
+      case default
+        call mqc_error('Unknown Cs Irrep Value.')
+      end select
+!
+      return
+      end function pointGroupIrrepNameCs
+!
+!
+!PROCEDURE pointGroupIrrepNameD2h(irrepVal)
+      function pointGroupIrrepNameD2h(irrepVal) result(irrepName)
+!
+!     This function returns the character string for the irrep name
+!     corresponding to the irrep integer value according to Gaussian's internal
+!     definitions for the D2h point group.
 !
 !
       implicit none
@@ -100,11 +158,64 @@
       case(8)
         irrepName = 'B3U'
       case default
-        call mqc_error('Unknown DinfH Irrep Value.')
+        call mqc_error('Unknown D2H Irrep Value.')
       end select
 !
       return
-      end function pointGroupIrrepNameDinfH
+      end function pointGroupIrrepNameD2h
 
+!PROCEDURE pointGroupIrrepNameC2H(irrepVal)
+      function pointGroupIrrepNameC2H(irrepVal) result(irrepname)
+!
+!     This function returns the character string for the irrep name
+!     corresponding to the irrep integer value according to Gaussian's internal
+!     definitions for the C2H point group.
+!
+!
+      implicit none
+      integer(kind=int64),intent(in)::irrepVal
+      character(len=32)::irrepName
+!
+      select case(irrepVal)
+      case(0)
+        irrepName = '?'
+      case(1)
+        irrepName = 'AG'
+      case(2)
+        irrepName = 'AU'
+      case(3)
+        irrepName = 'BG'
+      case(4)
+        irrepName = 'BU'
+      case default
+        call mqc_error('Unknown C2H Irrep Value.')
+      end select
+!
+      return
+      end function pointGroupIrrepNameC2H
+
+      function Calc_PSP_PAD(moIrrepPops,PAD_tot_weights,totirreps) result(PSP_PAD)
+!
+!     This function calculates the PSP PAD value. One takes all the moIrrepPops
+!     for the orbital in question, along with the total PAD weights stored in
+!     one array, and then multiples the each moirrep pop against the average of
+!     the pad_weights for that irrep, taking into account the number of
+!     parallel,perpendicular,or isosymmetric waves for each irrep that our
+!     possible.
+!
+
+      implicit none
+      integer(kind=int64),intent(in)::totirreps
+      real(kind=real64),intent(in),dimension(totirreps)::moIrrepPops
+      real(kind=real64),intent(in),dimension(totirreps+1)::PAD_tot_weights
+      real(kind=real64)::PSP_PAD
+      integer(kind=int64)::i
+    
+      PSP_PAD = 0.0
+      do i = 1,totirreps
+        PSP_PAD = PSP_PAD + moIrrepPops(i+1)*PAD_tot_weights(i+1)
+      end do
+
+      end function Calc_PSP_PAD
 
       end module moProjection_mod

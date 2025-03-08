@@ -37,8 +37,9 @@ INCLUDE 'moProjection_mod.f03'
       integer(kind=int64)::i,j,nCommands,nFafs,nMOSymms
       integer(kind=int64),dimension(:),allocatable::intVecTmp,irrepMOsAlpha,  &
         irrepMOsBeta
-      integer(kind=int64),dimension(3)::PAD_weights
+      real(kind=real64),dimension(:),allocatable::PAD_weights
       real(kind=real64),dimension(:),allocatable::moColumn,moIrrepPops
+      real(kind=real64)::PSP_PAD
       character(len=512)::fafName1,fafName2,fafName3,pointGroup
       character(len=32)::irrepName
       type(mqc_gaussian_unformatted_matrix_file)::faf1,faf2,faf3
@@ -57,7 +58,8 @@ INCLUDE 'moProjection_mod.f03'
  2005 format(/,1x,'BETA  Column ',i5)
  2010 format(/,1x,'Pops over irreps')
  2020 format(1x,A7,2x,f14.6)
- 2025 format(1x,A7,2x,f14.6,2x,'(',i2,' iso | ',i2,' perp | ',i2,' para)')
+ 2025 format(1x,A7,2x,f14.6,2x)
+ 2050 format(1x,'PSP_PAD',1x,F14.7,1x)
  8999 format(/,1x,'END OF MO PROJECTION PROGRAM.')
  9000 format(/,1x,'Expected at least 2 command line arguments, but found ',I2,'.')
  9100 format(/,1x,'Confused by the number of command line arguments.')
@@ -130,6 +132,7 @@ INCLUDE 'moProjection_mod.f03'
 !
 !     Grab symmetry array from the first file.
 !
+      write(*,*) "Andrew here"
       if(nFafs.eq.3) then
         call faf3%getArray('FILE 563 INTEGERS',mqcVarOut=mqcTmp)
         call faf3%getArray('FILE 564 INTEGERS',mqcVarOut=mqcTmp1)
@@ -149,6 +152,13 @@ INCLUDE 'moProjection_mod.f03'
 !     Project the second structure's MOs into the basis of the first structure's
 !     MOs. Then evaluate each MO's percentage character by irrep.
 !
+
+!
+!     Obtaining preset PAD_weights here
+!
+      Allocate(PAD_weights((nMOSymms+1)))
+      call pointGroupPADweight(pointGroup,PAD_weights,nMOSymms)
+      write(*,*) "PAD_weights size",Size(PAD_weights)
 !     First, run the analysis over alpha MOs.
       mqcTmp = MatMul(Transpose(moCoefficients1alpha),MatMul(aoOverlap,moCoefficients2alpha))
       if(Allocated(moIrrepPops)) deAllocate(moIrrepPops)
@@ -168,16 +178,32 @@ INCLUDE 'moProjection_mod.f03'
         case('D*H','DINFH')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
+!           write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
           endDo
         case('C2V','C02V')
           write(iOut,2010)
           do j = 1,Size(moIrrepPops(1:))
-            call pointGroupIrrepNameC2v(j,irrepName,PAD_weights)
-            write(iOut,2025) TRIM(irrepName),moIrrepPops(j),PAD_weights
+            write(iOut,2020) TRIM(pointGroupIrrepNameC2v(j)),moIrrepPops(j)
+          endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
+        case('D2H','D02H')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameD2H(j)),moIrrepPops(j)
+          endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
+        case('CS','Cs')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
+          endDo
+        case('C2H','C2h')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
           endDo
         case default
-          call mqc_print(moIrrepPops(1:),iOut=iOut,header='Pops over irreps')
+          call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
         if(ABS(moIrrepPops(0)).gt.1d-3) write(iOut,*) 'Unassigned Symmetry Population: ',moIrrepPops(0)
         write(*,*)
@@ -187,7 +213,7 @@ INCLUDE 'moProjection_mod.f03'
 !     Now, run the analysis over beta MOs.
       mqcTmp = MatMul(Transpose(moCoefficients1beta),MatMul(aoOverlap,moCoefficients2beta))
       if(Allocated(moIrrepPops)) deAllocate(moIrrepPops)
-      Allocate(moIrrepPops(nMOSymms))
+      Allocate(moIrrepPops(0:nMOSymms))
       do i = 1,Size(mqcTmp,2)
         mqcTmp1 = mqcTmp%column(i)
         write(*,*)' BETA  Column ',i
@@ -199,10 +225,37 @@ INCLUDE 'moProjection_mod.f03'
         do j = 1,Size(mqcTmp1)
           moIrrepPops(irrepMOsBeta(j)) = moIrrepPops(irrepMOsBeta(j)) + float(mqcTmp1%getVal([j]))
         endDo
-        call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
+        select case(pointGroup)
+        case('D*H','DINFH')
+          write(iOut,2010)
+          do j = 1,Size(moIrrepPops(1:))
+!           write(iOut,2020) TRIM(pointGroupIrrepNameDinfH(j)),moIrrepPops(j)
+          endDo
+        case('C2V','C02V')
+          write(iOut,2010)
+          do j = 1,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameC2v(j)),moIrrepPops(j)
+          endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
+        case('D2H','D02H')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameD2H(j)),moIrrepPops(j)
+          endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
+        case('CS','Cs')
+          write(iOut,2010)
+          do j = 0,Size(moIrrepPops(1:))
+            write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
+          endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
+        case default
+          call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
+        end select
+        if(ABS(moIrrepPops(0)).gt.1d-3) write(iOut,*) 'Unassigned Symmetry Population: ',moIrrepPops(0)
         write(*,*)
         write(*,*)
-      endDo
+      end do
 !
   999 Continue
       call faf1%closeFile()
