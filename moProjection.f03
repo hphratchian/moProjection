@@ -197,11 +197,13 @@ INCLUDE 'moProjection_mod.f03'
           do j = 0,Size(moIrrepPops(1:))
             write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
           endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case('C2H','C2h')
           write(iOut,2010)
           do j = 0,Size(moIrrepPops(1:))
             write(iOut,2020) TRIM(pointGroupIrrepNameCs(j)),moIrrepPops(j)
           endDo
+          write(iOut,2050) Calc_PSP_PAD(moIrrepPops,PAD_weights,Size(moIrrepPops))
         case default
           call mqc_print(moIrrepPops,iOut=iOut,header='Pops over irreps')
         end select
